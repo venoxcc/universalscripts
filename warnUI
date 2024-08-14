@@ -1,4 +1,4 @@
--- Notification UI Library
+-- Enhanced Notification UI Library
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -14,7 +14,7 @@ function NotificationUI:warnVenox(message, seconds)
 
     -- Adjust existing notifications downward
     for i, notif in ipairs(notifications) do
-        notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + i * 60), "Out", "Quad", 0.3, true)
+        notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + i * 80), "Out", "Quad", 0.3, true)
     end
 
     -- Create ScreenGui if it doesn't exist
@@ -22,79 +22,88 @@ function NotificationUI:warnVenox(message, seconds)
     screenGui.Name = "NotificationScreenGui"
     screenGui.Parent = playerGui
 
-    -- Create Frame with rounded corners and dark red background
+    -- Create Frame with gradient background
     local frame = Instance.new("Frame")
     frame.Name = "NotificationFrame"
-    frame.Size = UDim2.new(0.4, 0, 0.1, 0)
+    frame.Size = UDim2.new(0.45, 0, 0.12, 0)
     frame.Position = UDim2.new(0.5, 0, -0.2, 0)
     frame.AnchorPoint = Vector2.new(0.5, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(150, 50, 50) -- Darker red
+    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Placeholder for the gradient
     frame.BorderSizePixel = 0
     frame.ClipsDescendants = true
     frame.Parent = screenGui
 
+    -- Add a UIGradient for a stylish background
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 50, 50)), -- Dark red
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 70, 70)) -- Lighter red
+    }
+    gradient.Rotation = 45
+    gradient.Parent = frame
+
     -- Add rounded corners
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
+    corner.CornerRadius = UDim.new(0, 15)
     corner.Parent = frame
 
-    -- Add subtle shadow effect
+    -- Add a subtle shadow effect
     local shadow = Instance.new("ImageLabel")
-    shadow.Size = UDim2.new(1, 14, 1, 14)
-    shadow.Position = UDim2.new(0, -7, 0, -7)
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.Position = UDim2.new(0, -10, 0, -10)
     shadow.Image = "rbxassetid://415580125" -- Built-in shadow texture
     shadow.BackgroundTransparency = 1
     shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.ImageTransparency = 0.5
+    shadow.ImageTransparency = 0.4
     shadow.Parent = frame
 
-    -- Create TextLabel
+    -- Create TextLabel with better font and styling
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0.8, 0, 0.9, 0)
-    textLabel.Position = UDim2.new(0.15, 0, 0, 5)
+    textLabel.Size = UDim2.new(0.75, 0, 0.8, 0)
+    textLabel.Position = UDim2.new(0.18, 0, 0.1, 0)
     textLabel.Text = message
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
     textLabel.TextScaled = true
     textLabel.TextWrapped = true
-    textLabel.Font = Enum.Font.Cartoon
+    textLabel.Font = Enum.Font.GothamBold
     textLabel.BackgroundTransparency = 1
     textLabel.Parent = frame
 
-    -- Create TextButton for closing notification
+    -- Create TextButton for closing notification with modern look
     local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0.15, 0, 1, 0)
-    closeButton.Position = UDim2.new(1, -20, 0, 0)
+    closeButton.Size = UDim2.new(0.1, 0, 0.8, 0)
+    closeButton.Position = UDim2.new(0.9, -10, 0.1, 0)
     closeButton.Text = "✖"
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-    closeButton.BackgroundColor3 = Color3.fromRGB(160, 50, 50) -- Slightly different red
-    closeButton.BackgroundTransparency = 0.7
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60) -- Different red for the button
+    closeButton.BackgroundTransparency = 0.5
     closeButton.BorderSizePixel = 0
-    closeButton.Font = Enum.Font.Cartoon
-    closeButton.TextSize = 24
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 28
     closeButton.Parent = frame
 
-    -- Add icon to enhance the visual appeal
+    -- Add icon to enhance the visual appeal with new positioning and size
     local icon = Instance.new("ImageLabel")
-    icon.Size = UDim2.new(0.1, 0, 0.9, 0)
-    icon.Position = UDim2.new(0, 10, 0, 5)
+    icon.Size = UDim2.new(0.12, 0, 0.8, 0)
+    icon.Position = UDim2.new(0.03, 0, 0.1, 0)
     icon.Image = "rbxassetid://6031070980" -- Exclamation mark icon
     icon.BackgroundTransparency = 1
     icon.ImageColor3 = Color3.fromRGB(255, 255, 255)
     icon.Parent = frame
 
-    -- Add animation for appearance
-    frame:TweenPosition(UDim2.new(0.5, 0, 0, 20), "Out", "Bounce", 0.6, true)
+    -- Add animation for appearance with a smoother motion
+    frame:TweenPosition(UDim2.new(0.5, 0, 0, 20), "Out", "Sine", 0.5, true)
 
     -- Insert the notification frame into the table
     table.insert(notifications, 1, frame)
 
     -- Close notification when button is clicked
     closeButton.MouseButton1Click:Connect(function()
-        frame:TweenPosition(UDim2.new(0.5, 0, -0.2, 0), "In", "Bounce", 0.6, true, function()
+        frame:TweenPosition(UDim2.new(0.5, 0, -0.2, 0), "In", "Sine", 0.5, true, function()
             frame:Destroy()
             table.remove(notifications, table.find(notifications, frame))
             for i, notif in ipairs(notifications) do
-                notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + (i - 1) * 60), "Out", "Quad", 0.3, true)
+                notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + (i - 1) * 80), "Out", "Quad", 0.3, true)
             end
         end)
     end)
@@ -102,11 +111,11 @@ function NotificationUI:warnVenox(message, seconds)
     -- Automatically remove notification after `seconds` duration
     task.wait(seconds)
     if frame and frame.Parent then
-        frame:TweenPosition(UDim2.new(0.5, 0, -0.2, 0), "In", "Bounce", 0.6, true, function()
+        frame:TweenPosition(UDim2.new(0.5, 0, -0.2, 0), "In", "Sine", 0.5, true, function()
             frame:Destroy()
             table.remove(notifications, table.find(notifications, frame))
             for i, notif in ipairs(notifications) do
-                notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + (i - 1) * 60), "Out", "Quad", 0.3, true)
+                notif:TweenPosition(UDim2.new(0.5, 0, 0, 20 + (i - 1) * 80), "Out", "Quad", 0.3, true)
             end
         end)
     end
