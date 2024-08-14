@@ -86,7 +86,7 @@ function NotificationUI:warnVenox(message, seconds)
     local icon = Instance.new("ImageLabel")
     icon.Size = UDim2.new(0.12, 0, 0.8, 0)
     icon.Position = UDim2.new(0.03, 0, 0.1, 0)
-    icon.Image = "rbxassetid://7634887655" 
+    icon.Image = "rbxassetid://17055169796" 
     icon.BackgroundTransparency = 1
     icon.ImageColor3 = Color3.fromRGB(255, 255, 255)
     icon.Parent = frame
