@@ -10,8 +10,8 @@
     Venox Hub: discord.gg/venoxhub / @venox.w
 ]]--
 game.StarterGui:SetCore("SendNotification", {
-    Title = "Update Notice";
-    Text = "This version is now obsolete. Loading the normal Venoxware version...";
+    Title = "venoxwaree info";
+    Text = "This version is not available anymore. Loading the normal Venoxware version...";
     Duration = 5;
 })
 wait(2)
