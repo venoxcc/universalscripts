@@ -9,4 +9,10 @@
                 
     Venox Hub: discord.gg/venoxhub / @venox.w
 ]]--
+game.StarterGui:SetCore("SendNotification", {
+    Title = "Update Notice";
+    Text = "This version is now obsolete. Loading the normal Venoxware version...";
+    Duration = 5;
+})
+wait(2)
 loadstring(game:HttpGet('https://raw.githubusercontent.com/venoxhh/universalscripts/main/rivals/venoxware'))()
