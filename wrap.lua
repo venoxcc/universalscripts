@@ -1,7 +1,5 @@
 local OrionWrapper = {}
 
-local library = loadstring(game:HttpGet(("https://raw.githubusercontent.com/weakhoes/Roblox-UI-Libs/refs/heads/main/Elerium%20%5BIMGUI%5D%20Lib/Elerium%20%5BIMGUI%5D%20Lib%20Source.lua")))()
-
 local function createTab(window, name)
     return window:AddTab(name)
 end
@@ -10,13 +8,14 @@ local function createSection(tab, name)
     return tab:AddFolder(name)
 end
 
-function OrionWrapper:Init()
+function OrionWrapper:Init(uiLibrary)
+    self.library = uiLibrary or loadstring(game:HttpGet(("https://raw.githubusercontent.com/weakhoes/Roblox-UI-Libs/refs/heads/main/Elerium%20%5BIMGUI%5D%20Lib/Elerium%20%5BIMGUI%5D%20Lib%20Source.lua")))()
     self.Windows = {}
     return self
 end
 
 function OrionWrapper:MakeWindow(config)
-    local window = library:AddWindow(config.Name, {})
+    local window = self.library:AddWindow(config.Name, {})
     self.Windows[config.Name] = window
     return {
         Tabs = {},
@@ -39,7 +38,7 @@ function OrionWrapper:MakeTab(config)
             return createSection(tab, name)
         end,
         CreateButton = function(buttonConfig)
-            return tab:AddButton(buttonConfig.Title, buttonConfig.Callback)
+            return tab:AddButton(buttonConfig.Name, buttonConfig.Callback)
         end,
         CreateToggle = function(toggleConfig)
             local switch = tab:AddSwitch(toggleConfig.Name, toggleConfig.Callback)
