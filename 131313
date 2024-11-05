@@ -610,7 +610,7 @@ function OrionLib:MakeWindow(WindowConfig)
             }), "TextDark")
         }),
     }), "Second")
-end
+
 
 
 	local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
