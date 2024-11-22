@@ -132,8 +132,22 @@ local function getPerformanceStats()
 end
 
 local function getUNCScore() 
-    return "[83/117]: 87%";
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/venoxcc/universalscripts/refs/heads/main/uncSave", true))()
+
+    if getgenv().nUncScore then
+        local score = getgenv().nUncScore
+        return string.format(
+            "✅ Success Rate: %d%% (%s)\n⛔ Failed Tests: %d\n⚠️ Missing Aliases: %d",
+            score.successRate,
+            score.outOf,
+            score.failedTests,
+            score.missingAliases
+        )
+    else
+        return "N/A"
+    end
 end
+
 
 local function getGameInfo()
     local placeInfo = MarketplaceService:GetProductInfo(game.PlaceId)
