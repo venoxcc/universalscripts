@@ -515,7 +515,7 @@ local ClosureBindings = {
 		function Library:CreateWindow(Config)
 			assert(Config.Title, "Toggle - Missing Title")
 
-			Config.SubTitle = Config.SubTitle and getgenv().venox or "discord.gg/PR76TFQNz4  | Cracked Prem" 
+			Config.SubTitle = Config.SubTitle and getgenv().venox or "discord.gg/PR76TFQNz4  | venox" 
 			Config.TabWidth = Config.TabWidth or 170
 			Config.Size = Config.Size or UDim2.fromOffset(590, 470)
 			Config.Acrylic = false
