@@ -394,8 +394,8 @@ local ObjectTree = {
 	}
 }
 
-if game:GetService("CoreGui"):FindFirstChild('Fisch - Venox') then
-	game:GetService("CoreGui"):FindFirstChild('Fisch - Venox'):Destroy()
+if game:GetService("CoreGui"):FindFirstChild('Aquilon') then
+	game:GetService("CoreGui"):FindFirstChild('Aquilon'):Destroy()
 end
 
 -- Holds direct closure data
@@ -420,7 +420,7 @@ local ClosureBindings = {
 		local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 		local GUI = New("ScreenGui", {
 			Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
-			Name = "Fisch - Venox"
+			Name = "Aquilon"
 		})
 
 
