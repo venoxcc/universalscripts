@@ -1,4 +1,4 @@
-
+--discord.gg/boronide, code generated using luamin.js™
 
 
 
@@ -1506,7 +1506,7 @@ local aa = {
 			function x.AddSection(z, A)
 				local B, C = {
 					Type = 'Section'
-				}, e(n.Section)(A.."cracked | .gg/PR76TFQNz4", x.Container)
+				}, e(n.Section)(A.." cracked | .gg/PR76TFQNz4", x.Container)
 				B.Container = C.Container
 				B.ScrollFrame = x.Container
 				setmetatable(B, v)
