@@ -597,7 +597,7 @@ local ClosureBindings = {
 		end
 
 		if getgenv then
-			getgenv().Fluent = Library
+			getgenv().VENOXLIB = Library
 		end
 
 		return Library
