@@ -1,178 +1,129 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local OrionLib = {}
+local LibWrapper = {}
 
--- CreateWindow function, returning a window wrapper
-function OrionLib:CreateWindow(config)
-    -- Create the window using Rayfield's CreateWindow function
-    local windowConfig = {
-        Name = config.Name or "Default Name",
-        DisableRayfieldPrompts = false,
-        DisableBuildWarnings = false,
-        SaveConfig = config.SaveConfig or false,
-        ConfigurationSaving = {
-            Enabled = true,
-            FolderName = nil, 
-            FileName = config.ConfigFolder or "DefaultFolder",
-        },
+-- CreateWindow function, wrapping OrionLib's MakeWindow
+function LibWrapper:MakeWindow(config)
+    -- Call Rayfield's CreateWindow, passing the config
+    local window = Rayfield:CreateWindow({
+        Name = config.Name,
         LoadingTitle = config.IntroText or "",
-        Icon = 0,
-        KeySystem = false,
-    }
-    local window = Rayfield:CreateWindow(windowConfig)
+        LoadingSubtitle = "by ",
+        Icon = config.Icon or "",
+        KeySystem = false, -- Assuming you don't need Rayfield's KeySystem for this.
+        ConfigurationSaving = {
+            Enabled = config.SaveConfig or false,
+            FolderName = config.ConfigFolder or "DefaultConfigFolder",
+            FileName = "OrionConfig"
+        },
+    })
 
-    -- Window wrapper object to handle method chaining
+    -- Wrapper for the window to provide OrionLib-like functionality
     local windowWrapper = {}
 
-    -- Adding methods to the windowWrapper to allow chaining
-    function windowWrapper:CreateTab(tabConfig)
+    -- Add MakeTab functionality
+    function windowWrapper:MakeTab(tabConfig)
         local tab = window:CreateTab(tabConfig.Name)
         
-        -- Tab wrapper to allow for chained method calls
         local tabWrapper = {}
 
-        function tabWrapper:CreateButton(name, callback)
+        -- Add Button functionality
+        function tabWrapper:AddButton(buttonConfig)
             local button = tab:CreateButton({
-                Name = name,
-                Callback = callback
+                Name = buttonConfig.Name,
+                Callback = buttonConfig.Callback,
             })
-            local buttonWrapper = {}
-            function buttonWrapper:Set(name)
-                button:Set(name)
-            end
-            return buttonWrapper
+            return button
         end
-        tabWrapper.AddButton = tabWrapper.CreateButton
 
-        function tabWrapper:CreateSection(name)
-            local section = tab:CreateSection(name)
-            local sectionWrapper = {}
-            function sectionWrapper:Set(name)
-                section:Set(name)
-            end
-            return sectionWrapper
-        end
-        tabWrapper.AddSection = tabWrapper.CreateSection
-
-        function tabWrapper:CreateToggle(name, currentValue, callback)
+        -- Add Toggle functionality
+        function tabWrapper:AddToggle(toggleConfig)
             local toggle = tab:CreateToggle({
-                Name = name,
-                CurrentValue = currentValue,
-                Callback = callback
+                Name = toggleConfig.Name,
+                CurrentValue = toggleConfig.Default or false,
+                Callback = toggleConfig.Callback
             })
-            local toggleWrapper = {}
-            function toggleWrapper:Set(value)
-                toggle:Set(value)
-            end
-            return toggleWrapper
+            return toggle
         end
-        tabWrapper.AddToggle = tabWrapper.CreateToggle
 
-        function tabWrapper:CreateColorpicker(name, color, callback)
+        -- Add ColorPicker functionality
+        function tabWrapper:AddColorpicker(colorConfig)
             local colorPicker = tab:CreateColorpicker({
-                Name = name,
-                Default = color or Color3.fromRGB(255, 255, 255),
-                Callback = callback
+                Name = colorConfig.Name,
+                Default = colorConfig.Default or Color3.fromRGB(255, 255, 255),
+                Callback = colorConfig.Callback
             })
-            local colorPickerWrapper = {}
-            function colorPickerWrapper:Set(color)
-                colorPicker:Set(color)
-            end
-            return colorPickerWrapper
+            return colorPicker
         end
-        tabWrapper.AddColorpicker = tabWrapper.CreateColorpicker
 
-        function tabWrapper:CreateSlider(name, range, increment, suffix, currentValue, callback)
+        -- Add Slider functionality
+        function tabWrapper:AddSlider(sliderConfig)
             local slider = tab:CreateSlider({
-                Name = name,
-                Range = range,
-                Increment = increment,
-                Suffix = suffix,
-                CurrentValue = currentValue,
-                Callback = callback
+                Name = sliderConfig.Name,
+                Range = {sliderConfig.Min or 0, sliderConfig.Max or 100},
+                Increment = sliderConfig.Increment or 1,
+                Suffix = sliderConfig.ValueName or "",
+                CurrentValue = sliderConfig.Default or 50,
+                Callback = sliderConfig.Callback
             })
-            local sliderWrapper = {}
-            function sliderWrapper:Set(value)
-                slider:Set(value)
-            end
-            return sliderWrapper
+            return slider
         end
-        tabWrapper.AddSlider = tabWrapper.CreateSlider
 
-        function tabWrapper:CreateInput(name, placeholderText, removeTextAfterFocusLost, callback)
-            local input = tab:CreateInput({
-                Name = name,
-                PlaceholderText = placeholderText,
-                RemoveTextAfterFocusLost = removeTextAfterFocusLost,
-                Callback = callback
+        -- Add Input functionality
+        function tabWrapper:AddTextbox(textboxConfig)
+            local textbox = tab:CreateInput({
+                Name = textboxConfig.Name,
+                PlaceholderText = textboxConfig.Default or "Enter something...",
+                RemoveTextAfterFocusLost = textboxConfig.TextDisappear or false,
+                Callback = textboxConfig.Callback
             })
-            return input
+            return textbox
         end
-        tabWrapper.AddInput = tabWrapper.CreateInput
 
-        function tabWrapper:CreateDropdown(name, options, currentOption, multipleOptions, callback)
+        -- Add Dropdown functionality
+        function tabWrapper:AddDropdown(dropdownConfig)
             local dropdown = tab:CreateDropdown({
-                Name = name,
-                Options = options,
-                CurrentOption = currentOption,
-                MultipleOptions = multipleOptions,
-                Callback = callback
+                Name = dropdownConfig.Name,
+                Options = dropdownConfig.Options or {},
+                CurrentOption = dropdownConfig.Default or "",
+                MultipleOptions = dropdownConfig.MultipleOptions or false,
+                Callback = dropdownConfig.Callback
             })
-            local dropdownWrapper = {}
-            function dropdownWrapper:Set(options)
-                dropdown:Set(options)
-            end
-            return dropdownWrapper
+            return dropdown
         end
-        tabWrapper.AddDropdown = tabWrapper.CreateDropdown
 
-        function tabWrapper:CreateKeybind(name, currentKeybind, holdToInteract, callback)
+        -- Add Keybind functionality
+        function tabWrapper:AddBind(bindConfig)
             local keybind = tab:CreateKeybind({
-                Name = name,
-                CurrentKeybind = currentKeybind,
-                HoldToInteract = holdToInteract,
-                Callback = callback
+                Name = bindConfig.Name,
+                CurrentKeybind = bindConfig.Default or Enum.KeyCode.E,
+                HoldToInteract = bindConfig.Hold or false,
+                Callback = bindConfig.Callback
             })
-            local keybindWrapper = {}
-            function keybindWrapper:Set(keybind)
-                keybind:Set(keybind)
-            end
-            return keybindWrapper
+            return keybind
         end
-        tabWrapper.AddKeybind = tabWrapper.CreateKeybind
 
-        function tabWrapper:CreateLabel(name)
-            local label = tab:CreateLabel(name)
-            local labelWrapper = {}
-            function labelWrapper:Set(name)
-                label:Set(name)
-            end
-            return labelWrapper
+        -- Add Label functionality
+        function tabWrapper:AddLabel(labelName)
+            local label = tab:CreateLabel(labelName)
+            return label
         end
-        tabWrapper.AddLabel = tabWrapper.CreateLabel
 
-        function tabWrapper:CreateParagraph(title, content)
+        -- Add Paragraph functionality
+        function tabWrapper:AddParagraph(paragraphConfig)
             local paragraph = tab:CreateParagraph({
-                Title = title,
-                Content = content
+                Title = paragraphConfig.Title or "Title",
+                Content = paragraphConfig.Content or "Content"
             })
-            local paragraphWrapper = {}
-            function paragraphWrapper:Set(title, content)
-                paragraph:Set({Title = title, Content = content})
-            end
-            return paragraphWrapper
+            return paragraph
         end
-        tabWrapper.AddParagraph = tabWrapper.CreateParagraph
 
         return tabWrapper
     end
-    windowWrapper.AddTab = windowWrapper.CreateTab
 
-    -- You can chain method calls
     return windowWrapper
 end
 
-OrionLib.AddWindow = OrionLib.CreateWindow
-OrionLib.Load = OrionLib.CreateWindow
+LibWrapper.AddWindow = LibWrapper.MakeWindow
 
-return OrionLib
+return LibWrapper
