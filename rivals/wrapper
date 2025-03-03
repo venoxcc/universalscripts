@@ -29,13 +29,18 @@ function OrionLib:MakeWindow(config)
         __index = function(_, key)
             -- Redirect method calls to the window instance
             return function(_, ...)
-                return window[key](window, ...)
+                if key == "MakeTab" then
+                    -- Ensure MakeTab calls CreateTab on the window
+                    return window:CreateTab(...)
+                else
+                    return window[key](window, ...)
+                end
             end
         end
     })
 end
 
--- This allows adding tabs to the window instance
+-- This allows creating tabs directly on the window object
 function OrionLib:MakeTab(config)
     local window = self.Window  -- Get the window object from the instance
     return window:CreateTab(config.Name)
