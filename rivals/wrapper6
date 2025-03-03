@@ -12,9 +12,14 @@ function OrionToRayfield:MakeWindow(options)
         LoadingSubtitle = "by ",
         ConfigurationSaving = {
             Enabled = options.SaveConfig or false,
-            FolderName = options.ConfigFolder or "OrionConfigs",
+            FolderName = nil,
             FileName = "config.json"
         },
+        Discord = {
+              Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+              Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+              RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+           },
         KeySystem = false
     })
 
