@@ -1,0 +1,147 @@
+local OrionToRayfield = {}
+
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Create a window (Orion-like syntax)
+function OrionToRayfield:MakeWindow(options)
+    local window = Rayfield:CreateWindow({
+        Name = options.Name,
+        Icon = 0, -- Default icon
+        LoadingTitle = options.Name,
+        LoadingSubtitle = "by ",
+        ConfigurationSaving = {
+            Enabled = options.SaveConfig or false,
+            FolderName = nil,
+            FileName = "config.json"
+        },
+        Discord = {
+              Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+              Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+              RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+           },
+        KeySystem = false
+    })
+
+    local windowWrapper = {}
+
+    -- Create a tab (Orion-like syntax)
+    function windowWrapper:MakeTab(options)
+        local tab = window:CreateTab(options.Name, "rewind") -- Rayfield syntax
+        local tabWrapper = {}
+
+        -- Add a button (Orion-like syntax)
+        function tabWrapper:AddButton(options)
+            tab:CreateButton({
+                Name = options.Name,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a toggle (Orion-like syntax)
+        function tabWrapper:AddToggle(options)
+            tab:CreateToggle({
+                Name = options.Name,
+                CurrentValue = options.Default or false,
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a slider (Orion-like syntax)
+        function tabWrapper:AddSlider(options)
+            tab:CreateSlider({
+                Name = options.Name,
+                Range = {options.Min, options.Max},
+                Increment = options.Increment or 1,
+                Suffix = options.ValueName or "",
+                CurrentValue = options.Default or options.Min,
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a textbox (Orion-like syntax)
+        function tabWrapper:AddTextbox(options)
+            tab:CreateInput({
+                Name = options.Name,
+                PlaceholderText = options.Default or "",
+                RemoveTextAfterFocusLost = options.TextDisappear or false,
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a dropdown (Orion-like syntax)
+        function tabWrapper:AddDropdown(options)
+            tab:CreateDropdown({
+                Name = options.Name,
+                Options = options.Options,
+                CurrentOption = options.Default or options.Options[1],
+                MultipleOptions = options.MultipleOptions or false,
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a keybind (Orion-like syntax)
+        function tabWrapper:AddBind(options)
+            tab:CreateKeybind({
+                Name = options.Name,
+                CurrentKeybind = options.Default or Enum.KeyCode.E,
+                HoldToInteract = options.Hold or false,
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        -- Add a label (Orion-like syntax)
+        function tabWrapper:AddLabel(text)
+            tab:CreateLabel(text, "rewind")
+        end
+
+        -- Add a paragraph (Orion-like syntax)
+        function tabWrapper:AddParagraph(title, content)
+            tab:CreateParagraph({
+                Title = title,
+                Content = content
+            })
+        end
+
+        -- Add a color picker (Orion-like syntax)
+        function tabWrapper:AddColorpicker(options)
+            tab:CreateColorPicker({
+                Name = options.Name,
+                Color = options.Default or Color3.fromRGB(255, 255, 255),
+                Flag = options.Flag,
+                Callback = options.Callback
+            })
+        end
+
+        return tabWrapper
+    end
+
+    return windowWrapper
+end
+
+-- Initialize Rayfield (Orion-like syntax)
+function OrionToRayfield:Init()
+    Rayfield:Init()
+end
+
+-- Notify the user (Orion-like syntax)
+function OrionToRayfield:MakeNotification(options)
+    Rayfield:Notify({
+        Title = options.Title,
+        Content = options.Content,
+        Duration = options.Time or 5,
+        Image = 4483362458
+    })
+end
+
+-- Destroy the UI (Orion-like syntax)
+function OrionToRayfield:Destroy()
+    Rayfield:Destroy()
+end
+
+return OrionToRayfield
