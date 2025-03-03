@@ -3,7 +3,7 @@ local LibWrapper = {}
 -- Load Rayfield library
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-function LibWrapper:CreateWindow(name)
+function LibWrapper:MakeWindow(name)
     local window = Rayfield:CreateWindow({
         Name = name,
         Icon = 0, -- No icon
@@ -16,7 +16,7 @@ function LibWrapper:CreateWindow(name)
     
     local windowWrapper = {}
 
-    function windowWrapper:CreateTab(tabName)
+    function windowWrapper:MakeTab(tabName)
         local tab = window:CreateTab(tabName) -- No icon
         
         local tabWrapper = {}
@@ -29,7 +29,7 @@ function LibWrapper:CreateWindow(name)
             return button
         end
 
-        function tabWrapper:CreateToggle(name, defaultValue, callback)
+        function tabWrapper:AddToggle(name, defaultValue, callback)
             local toggle = tab:CreateToggle({
                 Name = name,
                 CurrentValue = defaultValue,
@@ -38,7 +38,7 @@ function LibWrapper:CreateWindow(name)
             return toggle
         end
 
-        function tabWrapper:CreateSlider(name, min, max, increment, suffix, defaultValue, callback)
+        function tabWrapper:AddSlider(name, min, max, increment, suffix, defaultValue, callback)
             local slider = tab:CreateSlider({
                 Name = name,
                 Range = {min, max},
@@ -50,7 +50,7 @@ function LibWrapper:CreateWindow(name)
             return slider
         end
 
-        function tabWrapper:CreateInput(name, placeholder, removeTextAfterFocusLost, callback)
+        function tabWrapper:AddTextbox(name, placeholder, removeTextAfterFocusLost, callback)
             local input = tab:CreateInput({
                 Name = name,
                 PlaceholderText = placeholder,
@@ -60,7 +60,7 @@ function LibWrapper:CreateWindow(name)
             return input
         end
 
-        function tabWrapper:CreateDropdown(name, options, defaultOption, multipleOptions, callback)
+        function tabWrapper:AddDropdown(name, options, defaultOption, multipleOptions, callback)
             local dropdown = tab:CreateDropdown({
                 Name = name,
                 Options = options,
@@ -71,7 +71,7 @@ function LibWrapper:CreateWindow(name)
             return dropdown
         end
 
-        function tabWrapper:CreateKeybind(name, defaultKey, holdToInteract, callback)
+        function tabWrapper:AddBind(name, defaultKey, holdToInteract, callback)
             local keybind = tab:CreateKeybind({
                 Name = name,
                 CurrentKeybind = defaultKey,
@@ -81,12 +81,12 @@ function LibWrapper:CreateWindow(name)
             return keybind
         end
 
-        function tabWrapper:CreateLabel(name)
+        function tabWrapper:AddLabel(name)
             local label = tab:CreateLabel(name)
             return label
         end
 
-        function tabWrapper:CreateParagraph(title, content)
+        function tabWrapper:AddParagraph(title, content)
             local paragraph = tab:CreateParagraph({
                 Title = title,
                 Content = content
