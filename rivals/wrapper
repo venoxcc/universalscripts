@@ -23,7 +23,7 @@ function OrionLib:MakeWindow(config)
 end
 
 function OrionLib:MakeTab(config)
-    local tab = Rayfield:CreateTab(config.Name, 0)
+    local tab = Rayfield:CreateTab(config.Name)
     -- Additional tab setup as needed
     return tab
 end
