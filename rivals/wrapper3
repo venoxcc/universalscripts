@@ -17,7 +17,7 @@ function LibWrapper:CreateWindow(name)
     local windowWrapper = {}
 
     function windowWrapper:CreateTab(tabName)
-        local tab = window:CreateTab(tabName, 0) -- No icon
+        local tab = window:CreateTab(tabName) -- No icon
         
         local tabWrapper = {}
 
