@@ -6,20 +6,24 @@ local OrionLib = {}
 function OrionLib:MakeWindow(config)
     local windowConfig = {
         Name = config.Name or "Default Name",
-        HidePremium = config.HidePremium or false,
+        DisableRayfieldPrompts = false,
+       DisableBuildWarnings = false,
         SaveConfig = config.SaveConfig or false,
-        ConfigFolder = config.ConfigFolder or "DefaultFolder",
-        IntroEnabled = config.IntroEnabled or false,
-        IntroText = config.IntroText or "",
-        IntroIcon = config.IntroIcon or "",
-        Icon = config.Icon or "",
-        CloseCallback = config.CloseCallback or function() end
+        ConfigurationSaving = {
+          Enabled = true,
+          FolderName = nil, 
+          FileName = config.ConfigFolder or "DefaultFolder",
+       },
+        LoadingTitle  = config.IntroText or "",
+        Icon = 0,
+        KeySystem = false,
+        
     }
     return Rayfield:CreateWindow(windowConfig)
 end
 
 function OrionLib:MakeTab(config)
-    local tab = Rayfield:CreateTab(config.Name, config.Icon)
+    local tab = Rayfield:CreateTab(config.Name, 0)
     -- Additional tab setup as needed
     return tab
 end
