@@ -27,7 +27,7 @@ function OrionToRayfield:MakeWindow(options)
 
     -- Create a tab (Orion-like syntax)
     function windowWrapper:MakeTab(options)
-        local tab = window:CreateTab(options.Name) -- Rayfield syntax
+        local tab = window:CreateTab(options.Name, "rewind") -- Rayfield syntax
         local tabWrapper = {}
 
         -- Add a button (Orion-like syntax)
@@ -97,7 +97,7 @@ function OrionToRayfield:MakeWindow(options)
 
         -- Add a label (Orion-like syntax)
         function tabWrapper:AddLabel(text)
-            tab:CreateLabel(text)
+            tab:CreateLabel(text, "rewind")
         end
 
         -- Add a paragraph (Orion-like syntax)
@@ -135,7 +135,7 @@ function OrionToRayfield:MakeNotification(options)
         Title = options.Title,
         Content = options.Content,
         Duration = options.Time or 5,
-        Image = options.Image or "rbxassetid://4483345998"
+        Image = 4483362458
     })
 end
 
