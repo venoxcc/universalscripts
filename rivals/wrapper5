@@ -7,9 +7,9 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 function OrionToRayfield:MakeWindow(options)
     local window = Rayfield:CreateWindow({
         Name = options.Name,
-        Icon = options.Icon or "rbxassetid://4483345998", -- Default icon
+        Icon = 0, -- Default icon
         LoadingTitle = options.Name,
-        LoadingSubtitle = "by benomat",
+        LoadingSubtitle = "by ",
         ConfigurationSaving = {
             Enabled = options.SaveConfig or false,
             FolderName = options.ConfigFolder or "OrionConfigs",
@@ -25,7 +25,7 @@ function OrionToRayfield:MakeWindow(options)
 
     -- Create a tab (Orion-like syntax)
     function windowWrapper:MakeTab(options)
-        local tab = window:CreateTab(options.Name, options.Icon or "rbxassetid://4483345998") -- Rayfield syntax
+        local tab = window:CreateTab(options.Name) -- Rayfield syntax
         local tabWrapper = {}
 
         -- Add a button (Orion-like syntax)
