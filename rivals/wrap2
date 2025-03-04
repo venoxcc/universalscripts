@@ -2,7 +2,9 @@ local OrionToRayfield = {}
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
+function extractKeyName(keycode)
+    return tostring(keycode):gsub("Enum.KeyCode.", "")
+end
 -- Create a window (Orion-like syntax)
 function OrionToRayfield:MakeWindow(options)
     local window = Rayfield:CreateWindow({
@@ -144,7 +146,7 @@ function OrionToRayfield:MakeWindow(options)
         function tabWrapper:AddBind(options)
             local keybind = tab:CreateKeybind({
                 Name = options.Name,
-                CurrentKeybind = options.Default or "E",
+                CurrentKeybind = options.Default and extractKeyName(options.Default) or "E",
                 HoldToInteract = options.Hold or false,
                 Flag = options.Flag or options.Name .. "Keybind",
                 Save = options.Save,
