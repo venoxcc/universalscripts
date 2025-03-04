@@ -1,10 +1,13 @@
+local UserInputService = game:GetService("UserInputService")
+
+function extractKeyName(keycode)
+    return UserInputService:GetStringForKeyCode(keycode) or "E"
+end
 local OrionToRayfield = {}
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-function extractKeyName(keycode)
-    return tostring(keycode):gsub("Enum.KeyCode.", "")
-end
+
 -- Create a window (Orion-like syntax)
 function OrionToRayfield:MakeWindow(options)
     local window = Rayfield:CreateWindow({
@@ -160,6 +163,7 @@ function OrionToRayfield:MakeWindow(options)
             
             return keybind
         end
+
 
         -- Add a label (Orion-like syntax)
         function tabWrapper:AddLabel(text)
