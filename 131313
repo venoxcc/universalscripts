@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+local Mouse = UserInputService:GetMouseLocation()
 local HttpService = game:GetService("HttpService")
 
 local OrionLib = {
@@ -98,35 +98,58 @@ task.spawn(function()
 end)
 
 local function MakeDraggable(DragPoint, Main)
-	pcall(function()
-		local Dragging, DragInput, MousePos, FramePos = false
-		AddConnection(DragPoint.InputBegan, function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Main.Position
+    local Dragging = false
+    local DragStartPos = Vector2.new(0, 0)
+    local FrameStartPos = Vector2.new(0, 0)
 
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
-				end)
-			end
-		end)
-		AddConnection(DragPoint.InputChanged, function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement then
-				DragInput = Input
-			end
-		end)
-		AddConnection(UserInputService.InputChanged, function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-				--TweenService:Create(Main, TweenInfo.new(0.05, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
-				Main.Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-			end
-		end)
-	end)
-end    
+    -- Start dragging when the user clicks on the drag point
+    AddConnection(DragPoint.InputBegan, function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Dragging = true
+            DragStartPos = UserInputService:GetMouseLocation()
+            FrameStartPos = Vector2.new(Main.Position.X.Offset, Main.Position.Y.Offset)
+
+            -- Stop dragging when the user releases the mouse button
+            AddConnection(Input.Changed, function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
+
+    -- Update the position of the UI element while dragging
+    AddConnection(UserInputService.InputChanged, function(Input)
+        if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+            local MousePos = UserInputService:GetMouseLocation()
+            local Delta = MousePos - DragStartPos
+            Main.Position = UDim2.new(
+                FrameStartPos.X.Scale,
+                FrameStartPos.X.Offset + Delta.X,
+                FrameStartPos.Y.Scale,
+                FrameStartPos.Y.Offset + Delta.Y
+            )
+        end
+    end)
+end
+
+local function CreateButton(ButtonConfig)
+    local Button = Create("TextButton", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = "",
+        AutoButtonColor = false
+    })
+
+    AddConnection(Button.InputBegan, function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- Handle button click
+            ButtonConfig.Callback()
+        end
+    end)
+
+    return Button
+end
 
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
