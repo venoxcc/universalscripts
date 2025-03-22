@@ -1,6 +1,5 @@
 -- hi jmaster and riru :)
 
---venoxWasHere is the key! enjoy
 getgenv().method = getgenv().method or "2"       --// 2 recommended
 getgenv().option = getgenv().option or "premium" --//free, premium, sponsor
 
