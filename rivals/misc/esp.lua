@@ -1,5 +1,7 @@
 -- open src > enjoy!  esp.lua
 
+-- open src > enjoy!  esp.lua
+
 -- esp.lua
 --// Variables
 local Players = game:GetService("Players")
@@ -194,16 +196,12 @@ local function updateEsp()
         
         if ESP_SETTINGS.WallCheck and isPlayerBehindWall(player) then
             hideEspElements(esp)
-            continue
-        }
-        
+        end
         local position, onScreen = camera:WorldToViewportPoint(rootPart.Position)
         
         if not onScreen then
             hideEspElements(esp)
-            continue
-        }
-        
+        end
         -- Calculate ESP dimensions
         local hrp2D = position
         local charSize = (camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 3, 0)).Y - 
