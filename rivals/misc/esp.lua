@@ -1,5 +1,4 @@
--- open src > enjoy!  esp.lua
-
+-- with teamcheck for rivals!
 -- esp.lua
 --// Variables
 local Players = game:GetService("Players")
@@ -56,6 +55,33 @@ local function create(class, properties)
         drawing[property] = value
     end
     return drawing
+end
+
+-- Utility function to hide all drawing objects
+local function hideDrawing(drawing)
+    if typeof(drawing) == "table" and drawing.Visible ~= nil then
+        drawing.Visible = false
+    elseif typeof(drawing) == "table" then
+        for _, item in pairs(drawing) do
+            if typeof(item) == "table" and item.Visible ~= nil then
+                item.Visible = false
+            elseif typeof(item) == "table" then
+                for _, subItem in pairs(item) do
+                    if typeof(subItem) == "table" and subItem.Visible ~= nil then
+                        subItem.Visible = false
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function hideAllEsp()
+    for _, esp in pairs(cache) do
+        for _, drawing in pairs(esp) do
+            hideDrawing(drawing)
+        end
+    end
 end
 
 local function createEsp(player)
@@ -144,32 +170,66 @@ local function removeEsp(player)
     cache[player] = nil
 end
 
-local function updateEsp()
-    if not ESP_SETTINGS.Enabled then
-        -- Hide all ESP if disabled
-        for _, esp in pairs(cache) do
-            for key, drawing in pairs(esp) do
-                if typeof(drawing) == "table" and drawing.Visible ~= nil then
-                    drawing.Visible = false
-                end
-            end
+-- Clean up all ESP objects
+local function cleanupAllEsp()
+    for player, _ in pairs(cache) do
+        removeEsp(player)
+    end
+end
+function isTeammate(character)
+    local success, humanoidRootPart =
+        pcall(
+        function()
+            return character:FindFirstChild("HumanoidRootPart")
         end
+    )
+
+    if success and humanoidRootPart and humanoidRootPart:FindFirstChild("TeammateLabel") then
+        return true
+    else
+        return false
+    end
+end
+local function hideEspForPlayer(esp)
+    -- Hide all ESP elements for a player
+    esp.tracer.Visible = false
+    esp.boxOutline.Visible = false
+    esp.box.Visible = false
+    esp.name.Visible = false
+    esp.healthOutline.Visible = false
+    esp.health.Visible = false
+    esp.distance.Visible = false
+    
+    -- Hide box lines
+    for _, line in ipairs(esp.boxLines) do
+        if line.Visible ~= nil then
+            line.Visible = false
+        end
+    end
+    
+    -- Hide skeleton lines
+    for _, lineData in ipairs(esp.skeletonlines) do
+        if lineData[1] and lineData[1].Visible ~= nil then
+            lineData[1].Visible = false
+        end
+    end
+end
+
+local function updateEsp()
+    -- If ESP is disabled, hide all ESP elements and return
+    if not ESP_SETTINGS.Enabled then
+        hideAllEsp()
         return
     end
     
     for player, esp in pairs(cache) do
         local character = player.Character
         local team = player.Team
-        local shouldShow = ESP_SETTINGS.Enabled and character and 
-                           (not ESP_SETTINGS.Teamcheck or team ~= localPlayer.Team)
+        local shouldShow = character and player ~= localPlayer and
+                           (not ESP_SETTINGS.Teamcheck or not isTeammate(character))
         
         if not shouldShow then
-            -- Hide ESP if conditions not met
-            for key, drawing in pairs(esp) do
-                if typeof(drawing) == "table" and drawing.Visible ~= nil then
-                    drawing.Visible = false
-                end
-            end
+            hideEspForPlayer(esp)
             continue
         end
         
@@ -178,28 +238,19 @@ local function updateEsp()
         local humanoid = character:FindFirstChild("Humanoid")
         
         if not (rootPart and head and humanoid) then
+            hideEspForPlayer(esp)
             continue
         end
         
         if ESP_SETTINGS.WallCheck and isPlayerBehindWall(player) then
-            -- Hide ESP if player is behind wall
-            for key, drawing in pairs(esp) do
-                if typeof(drawing) == "table" and drawing.Visible ~= nil then
-                    drawing.Visible = false
-                end
-            end
+            hideEspForPlayer(esp)
             continue
         end
         
         local position, onScreen = camera:WorldToViewportPoint(rootPart.Position)
         
         if not onScreen then
-            -- Hide ESP if player is off screen
-            for key, drawing in pairs(esp) do
-                if typeof(drawing) == "table" and drawing.Visible ~= nil then
-                    drawing.Visible = false
-                end
-            end
+            hideEspForPlayer(esp)
             continue
         end
         
@@ -223,7 +274,7 @@ local function updateEsp()
         -- Update box ESP
         if ESP_SETTINGS.ShowBox then
             if ESP_SETTINGS.BoxType == "2D" then
-                -- Clean up corner box lines if they exist
+                -- Hide corner box lines first
                 for _, line in ipairs(esp.boxLines) do
                     if line.Visible ~= nil then
                         line.Visible = false
@@ -254,7 +305,7 @@ local function updateEsp()
                         Thickness = #esp.boxLines < 8 and 1 or 2,
                         Color = #esp.boxLines < 8 and ESP_SETTINGS.BoxColor or ESP_SETTINGS.BoxOutlineColor,
                         Transparency = 1,
-                        Visible = true
+                        Visible = false
                     })
                     table.insert(esp.boxLines, boxLine)
                 end
@@ -405,7 +456,9 @@ local function updateEsp()
             end
         else
             for _, lineData in ipairs(esp.skeletonlines) do
-                lineData[1].Visible = false
+                if lineData[1] then
+                    lineData[1].Visible = false
+                end
             end
         end
         
@@ -431,6 +484,31 @@ local function updateEsp()
     end
 end
 
+-- Monitor settings changes to properly handle visibility
+local oldSettings = {}
+for k, v in pairs(ESP_SETTINGS) do
+    oldSettings[k] = v
+end
+
+-- Function to check if settings have changed
+local function checkSettingsChanged()
+    local changed = false
+    
+    for k, v in pairs(ESP_SETTINGS) do
+        if oldSettings[k] ~= v then
+            changed = true
+            oldSettings[k] = v
+        end
+    end
+    
+    -- If ESP was turned off, make sure to hide everything
+    if oldSettings.Enabled == true and ESP_SETTINGS.Enabled == false then
+        hideAllEsp()
+    end
+    
+    return changed
+end
+
 -- Initialize ESP for existing players
 for _, player in ipairs(Players:GetPlayers()) do
     if player ~= localPlayer then
@@ -451,6 +529,22 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 -- Update ESP on each frame
-RunService.RenderStepped:Connect(updateEsp)
+RunService.RenderStepped:Connect(function()
+    checkSettingsChanged()
+    updateEsp()
+end)
+
+-- Cleanup function for when script is destroyed
+local function onScriptDestroyed()
+    cleanupAllEsp()
+end
+
+-- Create a connection to clean up when the script is destroyed
+local scriptDestroyed = false
+spawn(function()
+    -- This will run when script is stopped
+    scriptDestroyed = true
+    onScriptDestroyed()
+end)
 
 return ESP_SETTINGS
