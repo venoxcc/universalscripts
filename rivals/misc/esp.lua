@@ -539,7 +539,13 @@ RunService.RenderStepped:Connect(function()
     checkSettingsChanged()
     updateEsp()
 end)
-
+task.spawn(function() 
+    while ESP_SETTINGS.Enabled do 
+        ensureAllPlayersHaveEsp()
+        checkSettingsChanged()
+        task.wait(1) 
+    end
+end)
 -- Cleanup function for when script is destroyed
 local function onScriptDestroyed()
     cleanupAllEsp()
