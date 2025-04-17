@@ -75,13 +75,6 @@ local function hideDrawing(drawing)
         end
     end
 end
-local function ensureAllPlayersHaveEsp()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and not cache[player] then
-            createEsp(player)
-        end
-    end
-end
 local function hideAllEsp()
     for _, esp in pairs(cache) do
         for _, drawing in pairs(esp) do
@@ -533,7 +526,13 @@ end)
 Players.PlayerRemoving:Connect(function(player)
     removeEsp(player)
 end)
-
+local function ensureAllPlayersHaveEsp()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= localPlayer and not cache[player] then
+            createEsp(player)
+        end
+    end
+end
 -- Update ESP on each frame
 RunService.RenderStepped:Connect(function()
     ensureAllPlayersHaveEsp()
