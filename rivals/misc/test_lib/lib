@@ -1253,7 +1253,7 @@ function L_10_:MakeWindow(L_124_arg1)
     L_14_func(L_130_.MouseButton1Up, function()
         if L_126_ then
             L_3_:Create(L_135_, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 615, 0, 344)
+                Size = UDim2.new(0, 600, 0, 455)
             }):Play()
             L_130_.Ico.Image = "rbxassetid://7072719338"
             task.wait(0.02)
