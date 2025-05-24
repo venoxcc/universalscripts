@@ -1,3 +1,9 @@
+--[[
+Copyright © 2025 venoxcc
+
+Redistribution, use, or modification without credit is prohibited.
+]]
+
 -- with teamcheck for rivals!
 -- esp.lua
 --// Variables
