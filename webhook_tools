@@ -1,3 +1,5 @@
+--[[ old ass source... ignore the code lmfao ]]
+
 local function loader(start_time, end_time, success2, response2)
     local logo = [[
         Welcome to 
