@@ -1,0 +1,342 @@
+-- Professional Script Update Notification System
+-- Now with 8-bit/Roblox game aesthetic
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create main ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UpdateNotificationSystem"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Main notification frame (centered modal)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "UpdateModal"
+mainFrame.Size = UDim2.new(0, 420, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+mainFrame.BorderSizePixel = 2
+mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+-- 8-bit style pixel border
+local borderInset = Instance.new("Frame")
+borderInset.Name = "BorderInset"
+borderInset.Size = UDim2.new(1, -4, 1, -4)
+borderInset.Position = UDim2.new(0, 2, 0, 2)
+borderInset.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+borderInset.BorderSizePixel = 0
+borderInset.Parent = mainFrame
+
+-- Corner rounding
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 4) -- Smaller radius for 8-bit look
+mainCorner.Parent = mainFrame
+mainCorner.Parent = borderInset
+
+-- Header section
+local header = Instance.new("Frame")
+header.Name = "Header"
+header.Size = UDim2.new(1, -4, 0, 50) -- Thicker header
+header.Position = UDim2.new(0, 2, 0, 2)
+header.BackgroundColor3 = Color3.fromRGB(255, 85, 0) -- Roblox orange
+header.BorderSizePixel = 0
+header.Parent = borderInset
+
+-- Header corner rounding
+local headerCorner = Instance.new("UICorner")
+headerCorner.CornerRadius = UDim.new(0, 4)
+headerCorner.Parent = header
+
+-- Update icon (8-bit style)
+local updateIcon = Instance.new("ImageLabel")
+updateIcon.Name = "UpdateIcon"
+updateIcon.Size = UDim2.new(0, 32, 0, 32)
+updateIcon.Position = UDim2.new(0, 15, 0.5, -16)
+updateIcon.BackgroundTransparency = 1
+updateIcon.Image = "rbxassetid://133333337" -- Replace with your 8-bit icon asset ID
+updateIcon.ScaleType = Enum.ScaleType.Fit
+updateIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+updateIcon.Parent = header
+
+-- Header title (8-bit font style)
+local headerTitle = Instance.new("TextLabel")
+headerTitle.Name = "HeaderTitle"
+headerTitle.Size = UDim2.new(1, -120, 1, 0)
+headerTitle.Position = UDim2.new(0, 60, 0, 0)
+headerTitle.BackgroundTransparency = 1
+headerTitle.Text = "SCRIPT UPDATED!"
+headerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+headerTitle.TextSize = 18
+headerTitle.Font = Enum.Font.Arcade -- 8-bit style font
+headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+headerTitle.Parent = header
+
+-- Close button (8-bit style)
+local closeButton = Instance.new("ImageButton") -- Changed to ImageButton for better control
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 24, 0, 24)
+closeButton.Position = UDim2.new(1, -34, 0.5, -12)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60) -- Red close button
+closeButton.BorderSizePixel = 2
+closeButton.BorderColor3 = Color3.fromRGB(150, 50, 50)
+closeButton.Image = ""
+closeButton.Parent = header
+
+-- Close button X symbol
+local closeX = Instance.new("TextLabel")
+closeX.Name = "CloseX"
+closeX.Size = UDim2.new(1, 0, 1, 0)
+closeX.BackgroundTransparency = 1
+closeX.Text = "X"
+closeX.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeX.TextSize = 16
+closeX.Font = Enum.Font.Arcade
+closeX.Parent = closeButton
+
+-- Close button corner
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 4)
+closeCorner.Parent = closeButton
+
+-- Content area
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "Content"
+contentFrame.Size = UDim2.new(1, -10, 1, -100)
+contentFrame.Position = UDim2.new(0, 5, 0, 60)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = borderInset
+
+-- Version info
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Name = "VersionLabel"
+versionLabel.Size = UDim2.new(1, 0, 0, 25)
+versionLabel.Position = UDim2.new(0, 0, 0, 0)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Text = "VERSION 2.1.3 - MAJOR UPDATE"
+versionLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Cyan for version
+versionLabel.TextSize = 16
+versionLabel.Font = Enum.Font.Arcade
+versionLabel.TextXAlignment = Enum.TextXAlignment.Left
+versionLabel.Parent = contentFrame
+
+-- Update type badge (8-bit style)
+local badge = Instance.new("Frame")
+badge.Name = "Badge"
+badge.Size = UDim2.new(0, 60, 0, 20)
+badge.Position = UDim2.new(1, -60, 0, 2)
+badge.BackgroundColor3 = Color3.fromRGB(255, 85, 0) -- Roblox orange
+badge.BorderSizePixel = 2
+badge.BorderColor3 = Color3.fromRGB(200, 70, 0)
+badge.Parent = versionLabel
+
+local badgeCorner = Instance.new("UICorner")
+badgeCorner.CornerRadius = UDim.new(0, 4)
+badgeCorner.Parent = badge
+
+local badgeText = Instance.new("TextLabel")
+badgeText.Size = UDim2.new(1, 0, 1, 0)
+badgeText.BackgroundTransparency = 1
+badgeText.Text = "NEW!"
+badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+badgeText.TextSize = 12
+badgeText.Font = Enum.Font.Arcade
+badgeText.Parent = badge
+
+-- Changelog title
+local changelogTitle = Instance.new("TextLabel")
+changelogTitle.Name = "ChangelogTitle"
+changelogTitle.Size = UDim2.new(1, 0, 0, 20)
+changelogTitle.Position = UDim2.new(0, 0, 0, 35)
+changelogTitle.BackgroundTransparency = 1
+changelogTitle.Text = "WHAT'S NEW:"
+changelogTitle.TextColor3 = Color3.fromRGB(255, 170, 0) -- Yellow
+changelogTitle.TextSize = 14
+changelogTitle.Font = Enum.Font.Arcade
+changelogTitle.TextXAlignment = Enum.TextXAlignment.Left
+changelogTitle.Parent = contentFrame
+
+-- Changelog content (8-bit style)
+local changelogFrame = Instance.new("ScrollingFrame")
+changelogFrame.Name = "ChangelogFrame"
+changelogFrame.Size = UDim2.new(1, 0, 0, 110)
+changelogFrame.Position = UDim2.new(0, 0, 0, 60)
+changelogFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+changelogFrame.BorderSizePixel = 2
+changelogFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
+changelogFrame.ScrollBarThickness = 6
+changelogFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 85, 0)
+changelogFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+changelogFrame.Parent = contentFrame
+
+local changelogCorner = Instance.new("UICorner")
+changelogCorner.CornerRadius = UDim.new(0, 4)
+changelogCorner.Parent = changelogFrame
+
+-- Changelog list
+local changelogList = Instance.new("UIListLayout")
+changelogList.SortOrder = Enum.SortOrder.LayoutOrder
+changelogList.Padding = UDim.new(0, 5)
+changelogList.Parent = changelogFrame
+
+local changelogPadding = Instance.new("UIPadding")
+changelogPadding.PaddingTop = UDim.new(0, 8)
+changelogPadding.PaddingLeft = UDim.new(0, 8)
+changelogPadding.PaddingRight = UDim.new(0, 8)
+changelogPadding.PaddingBottom = UDim.new(0, 8)
+changelogPadding.Parent = changelogFrame
+
+-- Single OK button (instead of update now/later)
+local okButton = Instance.new("TextButton")
+okButton.Name = "OkButton"
+okButton.Size = UDim2.new(0, 120, 0, 40)
+okButton.Position = UDim2.new(0.5, -60, 1, -50)
+okButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0) -- Green
+okButton.BorderSizePixel = 2
+okButton.BorderColor3 = Color3.fromRGB(0, 120, 0)
+okButton.Text = "OK"
+okButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+okButton.TextSize = 16
+okButton.Font = Enum.Font.Arcade
+okButton.Parent = borderInset
+
+local okCorner = Instance.new("UICorner")
+okCorner.CornerRadius = UDim.new(0, 4)
+okCorner.Parent = okButton
+
+-- Functions
+local function createChangelogItem(text, itemType)
+    local item = Instance.new("Frame")
+    item.Name = "ChangelogItem"
+    item.Size = UDim2.new(1, 0, 0, 20)
+    item.BackgroundTransparency = 1
+    item.Parent = changelogFrame
+    
+    local icon = Instance.new("TextLabel")
+    icon.Size = UDim2.new(0, 15, 1, 0)
+    icon.BackgroundTransparency = 1
+    icon.TextSize = 12
+    icon.Font = Enum.Font.Arcade
+    icon.TextXAlignment = Enum.TextXAlignment.Center
+    icon.Parent = item
+    
+    if itemType == "feature" then
+        icon.Text = "+"
+        icon.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green
+    elseif itemType == "fix" then
+        icon.Text = "•"
+        icon.TextColor3 = Color3.fromRGB(0, 200, 255) -- Blue
+    elseif itemType == "improvement" then
+        icon.Text = "↑"
+        icon.TextColor3 = Color3.fromRGB(255, 170, 0) -- Yellow
+    end
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 20, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.TextSize = 12
+    label.Font = Enum.Font.Arcade
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextWrapped = true
+    label.Parent = item
+    
+    return item
+end
+
+local function showUpdateNotification(version, updateType, changelog)
+    -- Update content
+    versionLabel.Text = "VERSION " .. string.upper(version) .. " - " .. string.upper(updateType)
+    
+    -- Clear existing changelog
+    for _, child in pairs(changelogFrame:GetChildren()) do
+        if child:IsA("Frame") and child.Name == "ChangelogItem" then
+            child:Destroy()
+        end
+    end
+    
+    -- Add changelog items
+    for _, change in pairs(changelog) do
+        createChangelogItem(change.text, change.type)
+    end
+    
+    -- Update canvas size
+    changelogFrame.CanvasSize = UDim2.new(0, 0, 0, changelogList.AbsoluteContentSize.Y + 20)
+    
+    -- Show notification with animation
+    mainFrame.Visible = true
+    borderInset.Visible = true
+    mainFrame.Size = UDim2.new(0, 0, 0, 0)
+    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    
+    local showTween = TweenService:Create(
+        mainFrame,
+        TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+        {
+            Size = UDim2.new(0, 420, 0, 300),
+            Position = UDim2.new(0.5, -210, 0.5, -150)
+        }
+    )
+    showTween:Play()
+    
+    -- Icon animation
+    local iconTween = TweenService:Create(
+        updateIcon,
+        TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+        {Rotation = 360}
+    )
+    iconTween:Play()
+end
+
+local function hideNotification()
+    local hideTween = TweenService:Create(
+        mainFrame,
+        TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+        {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+        }
+    )
+    hideTween:Play()
+    
+    hideTween.Completed:Connect(function()
+        mainFrame.Visible = false
+        borderInset.Visible = false
+    end)
+end
+
+-- Button connections
+closeButton.MouseButton1Click:Connect(hideNotification)
+okButton.MouseButton1Click:Connect(hideNotification)
+
+-- Button hover effects
+closeButton.MouseEnter:Connect(function()
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+end)
+closeButton.MouseLeave:Connect(function()
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+end)
+
+okButton.MouseEnter:Connect(function()
+    okButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    okButton.BorderColor3 = Color3.fromRGB(0, 150, 0)
+end)
+okButton.MouseLeave:Connect(function()
+    okButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    okButton.BorderColor3 = Color3.fromRGB(0, 120, 0)
+end)
+
+-- Global function to trigger update notification
+return ShowScriptUpdate = function(version, updateType, changelog)
+    showUpdateNotification(version, updateType, changelog)
+end
