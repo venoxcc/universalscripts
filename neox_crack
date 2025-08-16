@@ -1,4 +1,6 @@
 
+
+spawn(function()loadstring([[setclipboard("https://discord.gg/vRJHTFfndh")local screenSize=workspace.CurrentCamera.ViewportSize;local fadeTime=2.5;local bg=Drawing.new("Square")bg.Size=Vector2.new(screenSize.X*1.5,screenSize.Y*1.5)bg.Position=Vector2.new(-screenSize.X*0.25,-screenSize.Y*0.25)bg.Color=Color3.fromRGB(20,20,30)bg.Filled=true;bg.Transparency=1;bg.Visible=true;local textBox=Drawing.new("Text")textBox.Text="keysys bypassed! any key works!\ndiscord copied!!"textBox.Font=Drawing.Fonts.System;textBox.Size=screenSize.X/50;textBox.Position=Vector2.new(screenSize.X/2,screenSize.Y*0.6)textBox.Color=Color3.fromRGB(255,75,95)textBox.Center=true;textBox.Transparency=1;textBox.Visible=true;task.wait(3.5)local startTime=tick()repeat local progress=(tick()-startTime)/fadeTime;local alpha=math.max(0,1-progress)bg.Transparency=alpha;textBox.Transparency=alpha;task.wait()until progress>=1;bg:Remove()textBox:Remove()]])()end)
 local j=game:GetService("HttpService")
 local o=getgenv().request
 getgenv().request=function(c)
