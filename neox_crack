@@ -1,0 +1,23 @@
+
+local j=game:GetService("HttpService")
+local o=getgenv().request
+getgenv().request=function(c)
+ if c and c.Url then
+  local u=c.Url
+  if u=="https://neoxsoftworks.eu/api/validate-key" or u:find("api/validate-key") then
+   print("check found!")
+   local b
+   pcall(function()b=j:JSONDecode(c.Body)end)
+   if b and b.key and b.hwid then print("Key: "..tostring(b.key).." | HWID: "..tostring(b.hwid))end
+   return {StatusMessage="HTTP/1.1 200 OK",Success=true,StatusCode=200,Headers={["Content-Length"]="51",["Content-Type"]="application/json; charset=utf-8",["Connection"]="keep-alive",["Server"]="nginx/1.26.3 (Ubuntu)"},HttpError=nil,Body='{"valid":true,"message":"Key bound and validated."}'}
+  elseif u:find("https://discord.com/api/webhooks") then
+   print("webhook detected! successfully intercepted!")
+   return
+  end
+ end
+ return o(c)
+end
+getgenv().httprequest=getgenv().request
+getgenv().httpRequest=getgenv().request
+getgenv().http_request=getgenv().request
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/NEOXHUBMAIN/refs/heads/main/loader",true))()
