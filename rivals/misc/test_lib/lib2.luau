@@ -1,4 +1,3 @@
-
 --! Orion Library
 --! Recode@2024.1.5
 
@@ -1208,7 +1207,7 @@ function L_10_:MakeWindow(L_124_arg1)
                             Name = "Content"
                         }), "Text"),
                         L_23_func(L_19_func(L_16_func("TextLabel", {
-                            Text = "▾",
+                            Text = ">>",
                             Font = Enum.Font.GothamBold,
                             TextSize = 14,
                             BackgroundTransparency = 1,
