@@ -42,7 +42,7 @@ local L_10_ = {
             Main = Color3.fromRGB(15, 15, 20),
             Second = Color3.fromRGB(22, 22, 28),
             Stroke = Color3.fromRGB(40, 40, 50),
-            Divider = Color3.fromRGB(40, 40, 50),
+            Divider = Color3.fromRGB(35, 35, 45),
             Text = Color3.fromRGB(245, 245, 250),
             TextDark = Color3.fromRGB(130, 130, 150),
             Accent = Color3.fromRGB(88, 101, 242),
@@ -581,11 +581,11 @@ function L_10_:MakeWindow(L_124_arg1)
         L_23_func(L_19_func(L_18_func("Frame"), {
             Size = UDim2.new(1, 0, 0, 12),
             Position = UDim2.new(0, 0, 0, 0)
-        }), "Second"),
+        }), "Main"),
         L_23_func(L_19_func(L_18_func("Frame"), {
             Size = UDim2.new(0, 12, 1, 0),
             Position = UDim2.new(1, -12, 0, 0)
-        }), "Second"),
+        }), "Main"),
         L_23_func(L_19_func(L_18_func("Frame"), {
             Size = UDim2.new(0, 1, 1, 0),
             Position = UDim2.new(1, -1, 0, 0)
@@ -630,7 +630,7 @@ function L_10_:MakeWindow(L_124_arg1)
                 Visible = L_124_arg1.TestMode
             }), "TextDark")
         })
-    }), "Second")
+    }), "Main")
     local L_133_ = L_23_func(L_19_func(L_18_func("Label", L_124_arg1.Name, 14), {
         Size = UDim2.new(1, -30, 2, 0),
         Position = UDim2.new(0, 20, 0, -21),
@@ -663,7 +663,7 @@ function L_10_:MakeWindow(L_124_arg1)
                 }), "Stroke"),
                 L_129_,
                 L_130_
-            }), "Second")
+            }), "Second") 
         }),
         L_131_,
         L_132_
@@ -1541,9 +1541,13 @@ function L_10_:MakeWindow(L_124_arg1)
                     Type = "Colorpicker",
                     Save = L_222_arg1.Save
                 }
+                local h, s, v = L_226_.Value:ToHSV()
+                L_223_ = h
+                L_224_ = s
+                L_225_ = v
                 local L_227_ = L_16_func("Frame", {
                     Size = UDim2.new(0, 12, 0, 12),
-                    Position = UDim2.new(select(3, L_226_.Value:ToHSV())),
+                    Position = UDim2.new(s, 0, 1 - v, 0),
                     AnchorPoint = Vector2.new(0.5, 0.5),
                     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                     BorderSizePixel = 0
@@ -1558,7 +1562,7 @@ function L_10_:MakeWindow(L_124_arg1)
                 })
                 local L_228_ = L_16_func("Frame", {
                     Size = UDim2.new(0, 12, 0, 12),
-                    Position = UDim2.new(0.5, 0, 1 - select(1, L_226_.Value:ToHSV())),
+                    Position = UDim2.new(0.5, 0, 1 - h, 0),
                     AnchorPoint = Vector2.new(0.5, 0.5),
                     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                     BorderSizePixel = 0
@@ -1586,15 +1590,14 @@ function L_10_:MakeWindow(L_124_arg1)
                             ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
                         },
                         Transparency = NumberSequence.new{
-                            NumberSequenceKeypoint.new(0, 0),
-                            NumberSequenceKeypoint.new(1, 1)
+                            NumberSequenceKeypoint.new(0, 1),
+                            NumberSequenceKeypoint.new(1, 0)
                         }
                     }),
                     L_16_func("Frame", {
                         Size = UDim2.new(1, 0, 1, 0),
                         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-                        BorderSizePixel = 0,
-                        ZIndex = 0
+                        BorderSizePixel = 0
                     }, {
                         L_16_func("UICorner", {
                             CornerRadius = UDim.new(0, 6)
@@ -1704,9 +1707,6 @@ function L_10_:MakeWindow(L_124_arg1)
                     L_222_arg1.Callback(L_233_.BackgroundColor3)
                     L_27_func(game.PlaceId)
                 end
-                L_223_ = 1 - math.clamp(L_228_.AbsolutePosition.Y - L_230_.AbsolutePosition.Y, 0, L_230_.AbsoluteSize.Y) / L_230_.AbsoluteSize.Y
-                L_224_ = math.clamp(L_227_.AbsolutePosition.X - L_229_.AbsolutePosition.X, 0, L_229_.AbsoluteSize.X) / L_229_.AbsoluteSize.X
-                L_225_ = 1 - math.clamp(L_227_.AbsolutePosition.Y - L_229_.AbsolutePosition.Y, 0, L_229_.AbsoluteSize.Y) / L_229_.AbsoluteSize.Y
                 local L_236_
                 L_14_func(L_229_.InputBegan, function(L_239_arg1)
                     if L_239_arg1.UserInputType == Enum.UserInputType.MouseButton1 or L_239_arg1.UserInputType == Enum.UserInputType.Touch then
@@ -1747,6 +1747,7 @@ function L_10_:MakeWindow(L_124_arg1)
                         L_237_:Disconnect()
                     end
                 end)
+                L_235_func()
                 L_226_:Set(L_226_.Value)
                 if L_222_arg1.Flag then
                     L_10_.Flags[L_222_arg1.Flag] = L_226_
